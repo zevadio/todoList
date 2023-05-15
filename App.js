@@ -1,25 +1,40 @@
 import React, {useState} from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View } from 'react-native';
 import Task from "./components/Task"
 
 export default function App() {
   const [task, setTask] = useState();
+  const [taskItems, setTaskItems] = useState([]);
   const handleAddTask = () => {
-    console.log(task);
+    Keyboard.dismiss();
+    setTaskItems([...taskItems, task]);
+    setTask("");
   }
+
+  const completeTask = (index) => {
+    let itemsCopy= [...taskItems];
+    itemsCopy.splice(index, 1);
+    setTaskItems(itemsCopy);
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.taskWrapper}>
         <Text style={styles.sectionTitle}> Today's Tasks </Text>
         <View style={styles.items}>
-          <Task text={"Task1"}/>
-          <Task text={"Task2"}/>
-          <Task text={"Task3"}/>
+          {
+          taskItems.map((item, index) => {
+            return (
+            <TouchableOpacity key={index} onPress={() => completeTask(index)}>
+            <Task text={item}/>
+            </TouchableOpacity>)
+          })
+         }
           </View>
         <KeyboardAvoidingView 
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.writeTaskWrapper}>
-              <TextInput style={styles.input} placeholder={"Write a Task"} value={task} onChange={text => setTask(text)} />
+              <TextInput style={styles.input} placeholder={"Write a Task"} value={task} onChangeText={text => setTask(text)} />            
             <TouchableOpacity onPress={() => handleAddTask()}> 
             <View style={styles.addWrapper}> 
               <Text style={styles.addText}>+</Text>
@@ -47,12 +62,11 @@ const styles = StyleSheet.create({
       marginTop: 30,
     },
     writeTaskWrapper: {
-      position: "absolute",
-      bottom: -400,
-      width: "100%",
-      flexDirection: "row",
-      justifyContent: "space-around",
-      alignItems: "center"
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "center",
+        padding: 20,
     },
     input: {
       paddingVertical: 15,
